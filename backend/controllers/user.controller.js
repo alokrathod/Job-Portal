@@ -1,0 +1,164 @@
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import User from "../models/user.model.js";
+
+// @desc    Register a user
+// @route   POST /api/user/register
+// access   Public
+export const register = async (req, res) => {
+  const { fullName, email, phoneNumber, password, role } = req.body;
+  try {
+    if (!fullName || !email || !password || !role) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // check if user already exists
+    const user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    // hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // create user
+    await User.create({
+      fullName,
+      email,
+      phoneNumber,
+      password: hashedPassword,
+      role,
+    });
+
+    res.status(201).json({ message: "User created successfully" });
+  } catch (error) {
+    console.log("Error in user registration", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// @desc    Login a user
+// @route   POST /api/user/login
+// @access  Public
+export const login = async (req, res) => {
+  const { email, password, role } = req.body;
+  try {
+    if (!email || !password || !role) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // check if password is correct
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // check role is correct
+    if (role !== user.role) {
+      return res
+        .status(400)
+        .json({ message: "Account does not exist for this role" });
+    }
+
+    // generate token
+    const tokenData = {
+      userId: user._id,
+    };
+
+    const token = jwt.sign(tokenData, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    return res
+      .status(200)
+      .cookie("token", token, {
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: true,
+      })
+      .json({ message: `Welcome back ${user.fullName}`, user });
+  } catch (error) {
+    console.log("Error in user login", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// @desc    Logout user
+// @route   GET /api/user/logout
+// @access  Private
+export const logout = async (req, res) => {
+  try {
+    return res
+      .status(200)
+      .cookie("token", "", { maxAge: 0 })
+      .json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.log("Error in logout user", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// @desc   Get logged-in user
+// @route  GET /api/user/check
+// @access Private
+export const checkUser = async (req, res) => {
+  try {
+    // if user is authenticated, return user data
+    // req.id is set by the protect middleware after token verification
+    const user = await User.findById(req.id).select("-password"); // exclude password field
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // return user data
+    return res.status(200).json({ message: "User found", user });
+  } catch (error) {
+    console.log("Error in check user controller", error);
+    return res.status(500).json({ message: "Internal server error " });
+  }
+};
+
+// @desc    Update user profile
+// @route   PUT /api/user/update-profile
+// @access  Private
+export const updateProfile = async (req, res) => {
+  const { fullName, email, phoneNumber, bio, skills } = req.body;
+  const file = req.file;
+  try {
+    // Todo: cloudinary file uplaod
+
+    const userId = req.id; // it comes from middleware authentication
+
+    let user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    // updateing data
+    if (fullName) user.fullName = fullName;
+    if (email) user.email = email;
+    if (phoneNumber) user.phoneNumber = phoneNumber;
+    if (bio) user.profile.bio = bio;
+    // skills we get as string but we need it in the form of array.
+    if (skills) {
+      const skillsArray = skills.split(",");
+      user.profile.skills = skillsArray;
+    }
+
+    // Todo: resume part comes here
+
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ message: "User profile updated successfully", user });
+  } catch (error) {}
+};
