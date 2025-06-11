@@ -9,7 +9,9 @@ export const registerCompany = async (req, res) => {
     // check if company already registered
     const company = await Company.findOne({ name: companyName });
     if (company) {
-      return res.status(400).json({ message: "Company already registered" });
+      return res
+        .status(400)
+        .json({ message: "Company already registered", success: false });
     }
 
     // register company
@@ -20,10 +22,16 @@ export const registerCompany = async (req, res) => {
 
     return res
       .status(201)
-      .json({ message: "Company registered successfully", newCompany });
+      .json({
+        message: "Company registered successfully",
+        success: true,
+        newCompany,
+      });
   } catch (error) {
     console.log("Error in registering company", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };
 
@@ -35,13 +43,19 @@ export const getCompany = async (req, res) => {
     const userId = req.id; // logged-in user
     const companies = await Company.find({ userId });
     if (!companies) {
-      return res.status(404).json({ message: "No companies found" });
+      return res
+        .status(404)
+        .json({ message: "No companies found", success: false });
     }
 
-    return res.status(200).json({ message: "Found companies", companies });
+    return res
+      .status(200)
+      .json({ message: "Found companies", success: true, companies });
   } catch (error) {
     console.log("Error in getCompany", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };
 
@@ -54,13 +68,19 @@ export const getCompanyById = async (req, res) => {
     const companyId = req.params.id;
     const company = await Company.findById(companyId);
     if (!company) {
-      return res.status(404).json({ message: "Company not found" });
+      return res
+        .status(404)
+        .json({ message: "Company not found", success: false });
     }
 
-    return res.status(200).json({ message: "Comany found", company });
+    return res
+      .status(200)
+      .json({ message: "Comany found", success: true, company });
   } catch (error) {
     console.log("Error in getCompanyById", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };
 
@@ -75,7 +95,9 @@ export const updateCompany = async (req, res) => {
     const companyId = req.params.id;
     const company = await Company.findById(companyId);
     if (!company) {
-      return res.status(404).json({ message: "Company not found" });
+      return res
+        .status(404)
+        .json({ message: "Company not found", success: false });
     }
 
     if (name) company.name = name;
@@ -87,10 +109,16 @@ export const updateCompany = async (req, res) => {
 
     return res
       .status(200)
-      .json({ message: "Company updated successfully", company });
+      .json({
+        message: "Company updated successfully",
+        success: true,
+        company,
+      });
   } catch (error) {
     console.log("Error in update company", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };
 
@@ -102,14 +130,20 @@ export const deleteCompany = async (req, res) => {
     const { companyId } = req.body;
     const company = await Company.findById(companyId);
     if (!company) {
-      return res.status(404).json({ message: "Company not found" });
+      return res
+        .status(404)
+        .json({ message: "Company not found", success: false });
     }
 
     await company.deleteOne();
 
-    return res.status(200).json({ message: "Company deleted successfully" });
+    return res
+      .status(200)
+      .json({ message: "Company deleted successfully", success: true });
   } catch (error) {
     console.log("Error in delete company", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };

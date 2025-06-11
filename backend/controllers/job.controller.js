@@ -29,7 +29,9 @@ export const postJob = async (req, res) => {
       !positions ||
       !companyId
     ) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res
+        .status(400)
+        .json({ message: "All fields are required", success: false });
     }
 
     const job = await Job.create({
@@ -47,10 +49,12 @@ export const postJob = async (req, res) => {
 
     return res
       .status(201)
-      .json({ message: "New job created successfully", job });
+      .json({ message: "New job created successfully", success: true, job });
   } catch (error) {
     console.log("Error in posting job", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };
 
@@ -71,13 +75,17 @@ export const getAllJobs = async (req, res) => {
       .sort({ createdAt: -1 });
 
     if (!jobs) {
-      return res.status(404).json({ message: "Jobs not found" });
+      return res
+        .status(404)
+        .json({ message: "Jobs not found", success: false });
     }
 
-    return res.status(200).json({ jobs });
+    return res.status(200).json({ success: true, jobs });
   } catch (error) {
     console.log("Error in getting jobs", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };
 
@@ -90,13 +98,15 @@ export const getJobById = async (req, res) => {
     const job = await Job.findById(jobId);
 
     if (!job) {
-      return res.status(404).json({ message: "Job not found" });
+      return res.status(404).json({ message: "Job not found", success: false });
     }
 
-    return res.status(200).json({ job });
+    return res.status(200).json({ success: true, job });
   } catch (error) {
     console.log("Error in getting job by ID", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };
 
@@ -109,12 +119,16 @@ export const getRecruiterJobs = async (req, res) => {
     const jobs = await Job.find({ createdBy: recruiterId });
 
     if (!jobs) {
-      return res.status(404).json({ message: "Jobs not found" });
+      return res
+        .status(404)
+        .json({ message: "Jobs not found", success: false });
     }
 
-    return res.status(200).json({ jobs });
+    return res.status(200).json({ success: true, jobs });
   } catch (error) {
     console.log("Error in getting recruiter jobs", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };

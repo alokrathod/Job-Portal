@@ -10,7 +10,9 @@ export const applyJob = async (req, res) => {
     const jobId = req.params.id;
 
     if (!jobId) {
-      return res.status(400).json({ message: "Job ID is required" });
+      return res
+        .status(400)
+        .json({ message: "Job ID is required", success: false });
     }
 
     // check if the user has already applied for the job
@@ -19,15 +21,16 @@ export const applyJob = async (req, res) => {
       applicant: userId,
     });
     if (existingApplication) {
-      return res
-        .status(400)
-        .json({ message: "You have already applied for this job" });
+      return res.status(400).json({
+        message: "You have already applied for this job",
+        success: false,
+      });
     }
 
     // check if the job exists
     const job = await Job.findById(jobId);
     if (!job) {
-      return res.status(404).json({ message: "Job not found" });
+      return res.status(404).json({ message: "Job not found", success: false });
     }
 
     const newApplication = await Application.create({
@@ -41,10 +44,12 @@ export const applyJob = async (req, res) => {
 
     return res
       .status(201)
-      .json({ message: "Application submitted successfully" });
+      .json({ message: "Application submitted successfully", success: true });
   } catch (error) {
     console.log("Error in apply job", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };
 
@@ -62,13 +67,17 @@ export const getAppliedJobs = async (req, res) => {
         populate: { path: "company", options: { sort: { createdAt: -1 } } },
       });
     if (!application) {
-      return res.status(404).json({ message: "No applications found" });
+      return res
+        .status(404)
+        .json({ message: "No applications found", success: false });
     }
 
-    return res.status(200).json({ application });
+    return res.status(200).json({ application, success: true });
   } catch (error) {
     console.log("Error in get applied jobs", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };
 
@@ -87,13 +96,15 @@ export const getApplicants = async (req, res) => {
     });
 
     if (!job) {
-      return res.status(404).json({ message: "Job not found" });
+      return res.status(404).json({ message: "Job not found", success: false });
     }
 
-    return res.status(200).json({ job });
+    return res.status(200).json({ job, success: true });
   } catch (error) {
     console.log("Error in getApplicants", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };
 
@@ -106,13 +117,17 @@ export const updateStatus = async (req, res) => {
     const applicationId = req.params.id;
 
     if (!status) {
-      return res.status(400).json({ message: "Status is required" });
+      return res
+        .status(400)
+        .json({ message: "Status is required", success: false });
     }
 
     const application = await Application.findOne({ _id: applicationId });
 
     if (!application) {
-      return res.status(404).json({ message: "Application not found" });
+      return res
+        .status(404)
+        .json({ message: "Application not found", success: false });
     }
 
     // update the status
@@ -121,9 +136,14 @@ export const updateStatus = async (req, res) => {
 
     return res
       .status(200)
-      .json({ message: "Application status updated successfully" });
+      .json({
+        message: "Application status updated successfully",
+        success: true,
+      });
   } catch (error) {
     console.log("Error in updateStatus", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };

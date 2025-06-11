@@ -8,14 +8,18 @@ import User from "../models/user.model.js";
 export const register = async (req, res) => {
   const { fullName, email, phoneNumber, password, role } = req.body;
   try {
-    if (!fullName || !email || !password || !role) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!fullName || !email || !phoneNumber || !password || !role) {
+      return res
+        .status(400)
+        .json({ message: "All fields are required", success: false });
     }
 
     // check if user already exists
     const user = await User.findOne({ email });
     if (user) {
-      return res.status(400).json({ message: "User already exists" });
+      return res
+        .status(400)
+        .json({ message: "User already exists", success: false });
     }
 
     // hash password
@@ -31,10 +35,12 @@ export const register = async (req, res) => {
       role,
     });
 
-    res.status(201).json({ message: "User created successfully" });
+    res
+      .status(201)
+      .json({ message: "User created successfully", success: true });
   } catch (error) {
     console.log("Error in user registration", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error", success: false });
   }
 };
 
@@ -45,26 +51,33 @@ export const login = async (req, res) => {
   const { email, password, role } = req.body;
   try {
     if (!email || !password || !role) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res
+        .status(400)
+        .json({ message: "All fields are required", success: false });
     }
 
     // check if user exists
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res
+        .status(400)
+        .json({ message: "Invalid credentials", success: false });
     }
 
     // check if password is correct
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res
+        .status(400)
+        .json({ message: "Invalid credentials", success: false });
     }
 
     // check role is correct
     if (role !== user.role) {
-      return res
-        .status(400)
-        .json({ message: "Account does not exist for this role" });
+      return res.status(400).json({
+        message: "Account does not exist for this role",
+        success: false,
+      });
     }
 
     // generate token
@@ -83,10 +96,10 @@ export const login = async (req, res) => {
         httpOnly: true,
         sameSite: true,
       })
-      .json({ message: `Welcome back ${user.fullName}`, user });
+      .json({ message: `Welcome back ${user.fullName}`, success: true, user });
   } catch (error) {
     console.log("Error in user login", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error", success: false });
   }
 };
 
@@ -98,10 +111,10 @@ export const logout = async (req, res) => {
     return res
       .status(200)
       .cookie("token", "", { maxAge: 0 })
-      .json({ message: "Logged out successfully" });
+      .json({ message: "Logged out successfully", success: true });
   } catch (error) {
     console.log("Error in logout user", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error", success: false });
   }
 };
 
@@ -115,14 +128,18 @@ export const checkUser = async (req, res) => {
     const user = await User.findById(req.id).select("-password"); // exclude password field
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res
+        .status(404)
+        .json({ message: "User not found", success: false });
     }
 
     // return user data
-    return res.status(200).json({ message: "User found", user });
+    return res.status(200).json({ message: "User found", success: true, user });
   } catch (error) {
     console.log("Error in check user controller", error);
-    return res.status(500).json({ message: "Internal server error " });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };
 
@@ -139,7 +156,9 @@ export const updateProfile = async (req, res) => {
 
     let user = await User.findById(userId);
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res
+        .status(400)
+        .json({ message: "User not found", success: false });
     }
 
     // updateing data
@@ -157,8 +176,15 @@ export const updateProfile = async (req, res) => {
 
     await user.save();
 
+    return res.status(200).json({
+      message: "User profile updated successfully",
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.log("Error in update profile controller", error);
     return res
-      .status(200)
-      .json({ message: "User profile updated successfully", user });
-  } catch (error) {}
+      .status(500)
+      .json({ message: "Internal server error", success: false });
+  }
 };

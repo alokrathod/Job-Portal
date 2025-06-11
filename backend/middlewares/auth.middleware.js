@@ -6,20 +6,24 @@ export const protect = async (req, res, next) => {
     if (!token) {
       return res
         .status(401)
-        .json({ message: "Unauthorized - No Token Provided" });
+        .json({ message: "Unauthorized - No Token Provided", success: false });
     }
 
     // verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (!decoded) {
-      return res.status(401).json({ message: "Unauthorized - Invalid Token" });
+      return res
+        .status(401)
+        .json({ message: "Unauthorized - Invalid Token", success: false });
     }
 
     req.id = decoded.userId; // userId is the name of the field we gave while storing it (in user.controller.js)
     next();
   } catch (error) {
     console.log("Error in auth.middleware.js", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res
+      .status(500)
+      .json({ message: "Internal Server Error", success: false });
   }
 };
 
