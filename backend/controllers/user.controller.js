@@ -1,17 +1,26 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
+import getDataUri from "../utils/dataURI.js";
+import cloudinary from "../utils/cloudinary.js";
 
 // @desc    Register a user
 // @route   POST /api/user/register
 // access   Public
 export const register = async (req, res) => {
   const { fullName, email, phoneNumber, password, role } = req.body;
+  const file = req.file;
   try {
     if (!fullName || !email || !phoneNumber || !password || !role) {
       return res
         .status(400)
         .json({ message: "All fields are required", success: false });
+    }
+
+    let cloudResponse = "";
+    if (file) {
+      const fileUri = getDataUri(file);
+      cloudResponse = await cloudinary.uploader.upload(fileUri.content);
     }
 
     // check if user already exists
@@ -33,6 +42,9 @@ export const register = async (req, res) => {
       phoneNumber,
       password: hashedPassword,
       role,
+      profile: {
+        profilePhoto: cloudResponse.secure_url,
+      },
     });
 
     res
@@ -147,11 +159,16 @@ export const checkUser = async (req, res) => {
 // @route   PUT /api/user/update-profile
 // @access  Private
 export const updateProfile = async (req, res) => {
-  const { fullName, email, phoneNumber, bio, skills } = req.body;
+  // const { fullName, email, phoneNumber, bio, skills } = req.body;
+  const { bio, skills } = req.body;
   const file = req.file;
   try {
-    // Todo: cloudinary file uplaod
-
+    let cloudResponse = false;
+    if (file) {
+      // Todo: cloudinary file uplaod
+      const fileUri = getDataUri(file);
+      cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+    }
     const userId = req.id; // it comes from middleware authentication
 
     let user = await User.findById(userId);
@@ -162,9 +179,9 @@ export const updateProfile = async (req, res) => {
     }
 
     // updateing data
-    if (fullName) user.fullName = fullName;
-    if (email) user.email = email;
-    if (phoneNumber) user.phoneNumber = phoneNumber;
+    // if (fullName) user.fullName = fullName;
+    // if (email) user.email = email;
+    // if (phoneNumber) user.phoneNumber = phoneNumber;
     if (bio) user.profile.bio = bio;
     // skills we get as string but we need it in the form of array.
     if (skills) {
@@ -173,6 +190,10 @@ export const updateProfile = async (req, res) => {
     }
 
     // Todo: resume part comes here
+    if (cloudResponse) {
+      user.profile.resume = cloudResponse.secure_url; // save the cloudinary url
+      user.profile.resumeOriginalName = file.originalname; // save the original file name to display it
+    }
 
     await user.save();
 
