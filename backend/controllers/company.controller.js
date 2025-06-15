@@ -1,10 +1,13 @@
 import Company from "../models/company.model.js";
+import cloudinary from "../utils/cloudinary.js";
+import getDataUri from "../utils/dataURI.js";
 
 // @desc    Register a company
 // @route   POST /api/company/register
 // @access  Private
 export const registerCompany = async (req, res) => {
   const { companyName } = req.body;
+
   try {
     // check if company already registered
     const company = await Company.findOne({ name: companyName });
@@ -20,13 +23,11 @@ export const registerCompany = async (req, res) => {
       userId: req.id,
     });
 
-    return res
-      .status(201)
-      .json({
-        message: "Company registered successfully",
-        success: true,
-        newCompany,
-      });
+    return res.status(201).json({
+      message: "Company registered successfully",
+      success: true,
+      company: newCompany,
+    });
   } catch (error) {
     console.log("Error in registering company", error);
     return res
@@ -92,8 +93,21 @@ export const updateCompany = async (req, res) => {
     const { name, description, website, location } = req.body;
     const file = req.file;
     // Todo: file uploads comes here (cloudinary)
+    let cloudResponse = false;
+    if (file) {
+      // Todo: cloudinary file uplaod
+      const fileUri = getDataUri(file);
+      cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+    }
+
+    let logo = "";
+    if (cloudResponse) {
+      logo = cloudResponse.secure_url;
+    }
+
     const companyId = req.params.id;
     const company = await Company.findById(companyId);
+
     if (!company) {
       return res
         .status(404)
@@ -104,16 +118,15 @@ export const updateCompany = async (req, res) => {
     if (description) company.description = description;
     if (website) company.website = website;
     if (location) company.location = location;
+    if (logo) company.logo = logo;
 
     await company.save();
 
-    return res
-      .status(200)
-      .json({
-        message: "Company updated successfully",
-        success: true,
-        company,
-      });
+    return res.status(200).json({
+      message: "Company updated successfully",
+      success: true,
+      company,
+    });
   } catch (error) {
     console.log("Error in update company", error);
     return res
