@@ -1,4 +1,4 @@
-import { setAllJobs } from "@/redux/jobSlice";
+import { setSingleCompany } from "@/redux/companySlice";
 import { COMPANY_API_END_POINT } from "@/utils/constants";
 import axios from "axios";
 import React, { useEffect } from "react";
@@ -16,7 +16,7 @@ const useGetCompanyById = (companyId) => {
           }
         );
         if (res.data.success) {
-          dispatch(setAllJobs(res.data.company));
+          dispatch(setSingleCompany(res.data.company));
         }
       } catch (error) {
         console.log(error);

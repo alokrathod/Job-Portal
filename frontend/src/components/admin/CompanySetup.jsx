@@ -9,20 +9,22 @@ import { COMPANY_API_END_POINT } from "@/utils/constants";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
+import useGetCompanyById from "@/hooks/useGetCompanyById";
 
 const CompanySetup = () => {
+  const params = useParams();
+  useGetCompanyById(params.id);
   const { singleCompany } = useSelector((store) => store.company);
 
   const [input, setInput] = useState({
-    name: singleCompany.name,
-    description: "",
-    website: "",
-    location: "",
+    name: singleCompany?.name || "",
+    description: singleCompany?.description || "",
+    website: singleCompany?.website || "",
+    location: singleCompany?.location || "",
     file: null,
   });
 
   const [loading, setLoading] = useState();
-  const params = useParams();
   const navigate = useNavigate();
 
   const changeEventHandler = (e) => {
@@ -73,13 +75,15 @@ const CompanySetup = () => {
   };
 
   useEffect(() => {
-    setInput({
-      name: singleCompany.name || "",
-      description: singleCompany.description || "",
-      website: singleCompany.website || "",
-      location: singleCompany.location || "",
-      file: singleCompany.file || null,
-    });
+    if (singleCompany) {
+      setInput({
+        name: singleCompany.name || "",
+        description: singleCompany.description || "",
+        website: singleCompany.website || "",
+        location: singleCompany.location || "",
+        file: null,
+      });
+    }
   }, [singleCompany]);
 
   return (
@@ -108,7 +112,7 @@ const CompanySetup = () => {
                 disabled={true}
                 type="text"
                 name="name"
-                value={singleCompany.name}
+                value={input.name}
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -116,7 +120,7 @@ const CompanySetup = () => {
               <Input
                 type="text"
                 name="description"
-                value={input.value}
+                value={input.description}
                 onChange={changeEventHandler}
               />
             </div>
@@ -125,7 +129,7 @@ const CompanySetup = () => {
               <Input
                 type="text"
                 name="website"
-                value={input.value}
+                value={input.website}
                 onChange={changeEventHandler}
               />
             </div>
@@ -134,7 +138,7 @@ const CompanySetup = () => {
               <Input
                 type="text"
                 name="location"
-                value={input.value}
+                value={input.location}
                 onChange={changeEventHandler}
               />
             </div>
