@@ -60,7 +60,7 @@ export const postJob = async (req, res) => {
 
 // @desc    Get all jobs
 // @route   GET /api/job/get
-// @access  Private (Student)
+// @access  Public
 export const getAllJobs = async (req, res) => {
   try {
     const keyword = req.query.keyword || "";
@@ -118,7 +118,10 @@ export const getJobById = async (req, res) => {
 export const getRecruiterJobs = async (req, res) => {
   try {
     const recruiterId = req.id;
-    const jobs = await Job.find({ createdBy: recruiterId });
+    const jobs = await Job.find({ createdBy: recruiterId }).populate({
+      path: "company",
+      createdAt: -1,
+    });
 
     if (!jobs) {
       return res
