@@ -3,14 +3,14 @@ import { protect } from "../middlewares/auth.middleware.js";
 import {
   applyJob,
   getApplicants,
+  getAppliedJobs,
   updateStatus,
 } from "../controllers/application.controller.js";
-import { getAllJobs } from "../controllers/job.controller.js";
 
 const router = express.Router();
 
 router.get("/apply/:id", protect, applyJob);
-router.get("/get", protect, getAllJobs);
+router.get("/get", protect, getAppliedJobs);
 router.get("/:id/applicants", protect, getApplicants);
 router.post("/update-status/:id", protect, updateStatus);
 
