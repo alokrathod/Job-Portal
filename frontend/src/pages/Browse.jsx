@@ -1,10 +1,20 @@
 import Job from "@/components/Job";
 import Navbar from "../components/shared/Navbar";
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setSearchedQuery } from "@/redux/jobSlice";
+import useGetAllJobs from "@/hooks/useGetAllJobs";
 
 const Browse = () => {
+  useGetAllJobs();
   const { allJobs } = useSelector((store) => store.job);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    return () => {
+      dispatch(setSearchedQuery(""));
+    };
+  }, []);
 
   return (
     <div>
