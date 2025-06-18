@@ -25,6 +25,7 @@ const UpdateProfileDialog = ({ edit, setEdit }) => {
     bio: user?.profile?.bio,
     skills: user?.profile?.skills?.map((skill) => skill),
     file: user?.profile?.resume,
+    profilePhoto: user?.profile?.profilePhoto || null,
   });
 
   const changeEventHandler = (e) => {
@@ -36,6 +37,11 @@ const UpdateProfileDialog = ({ edit, setEdit }) => {
     setInput({ ...input, file });
   };
 
+  const changePhotoHandler = (e) => {
+    const photo = e.target.files?.[0];
+    setInput({ ...input, profilePhoto: photo });
+  };
+
   const submitHandler = async (e) => {
     e.preventDefault();
 
@@ -45,6 +51,9 @@ const UpdateProfileDialog = ({ edit, setEdit }) => {
     formData.append("skills", input.skills);
     if (input.file) {
       formData.append("file", input.file);
+    }
+    if (input.profilePhoto) {
+      formData.append("profilePhoto", input.profilePhoto); // ✅ new field
     }
 
     // api call
@@ -89,18 +98,6 @@ const UpdateProfileDialog = ({ edit, setEdit }) => {
           </DialogHeader>
           <form onSubmit={submitHandler}>
             <div className="flex flex-col">
-              {/* <div className="flex flex-col gap-1 my-2">
-                <Label className="font-medium text-lg">Full name</Label>
-                <Input id="fullName" name="fullName" />
-              </div>
-              <div className="flex flex-col gap-2 my-2">
-                <Label className="font-medium text-lg">Email</Label>
-                <Input id="email" name="email" />
-              </div>
-              <div className="flex flex-col gap-2 my-2">
-                <Label className="font-medium text-lg">Phone number</Label>
-                <Input id="phoneNumber" name="phoneNumber" />
-              </div> */}
               <div className="flex flex-col gap-2 my-2">
                 <Label className="font-medium text-lg">Bio</Label>
                 <Input
@@ -129,6 +126,16 @@ const UpdateProfileDialog = ({ edit, setEdit }) => {
                   type="file"
                   accept="application/pdf"
                   onChange={changeFileHandler}
+                />
+              </div>
+              <div className="flex flex-col gap-2 my-2">
+                <Label className="font-medium text-lg">Profile Photo</Label>
+                <Input
+                  id="profilePhoto"
+                  name="profilePhoto"
+                  type="file"
+                  accept="image/*"
+                  onChange={changePhotoHandler}
                 />
               </div>
             </div>

@@ -45,22 +45,47 @@ const JobDescription = () => {
     }
   };
 
+  // useEffect(() => {
+  //   const fetchSingleJobs = async () => {
+  //     try {
+  //       const res = await axios.get(`${JOB_API_END_POINT}/get/${jobId}`, {
+  //         withCredentials: true,
+  //       });
+  //       if (res.data.success) {
+  //         dispatch(setSingleJob(res.data.job));
+  //         setIsApplied(
+  //           res.data.job.applications.some(
+  //             (application) => application.applicant === user._id
+  //           )
+  //         ); // ensure the state is in sync with the fetched data
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  //   fetchSingleJobs();
+  // }, [jobId, dispatch, user?._id]);
+
   useEffect(() => {
+    dispatch(setSingleJob(null)); // optional: clear previous job data
     const fetchSingleJobs = async () => {
       try {
+        console.log("Fetching job for ID:", jobId);
         const res = await axios.get(`${JOB_API_END_POINT}/get/${jobId}`, {
           withCredentials: true,
         });
+        console.log("Response from backend:", res.data);
+
         if (res.data.success) {
           dispatch(setSingleJob(res.data.job));
           setIsApplied(
             res.data.job.applications.some(
               (application) => application.applicant === user._id
             )
-          ); // ensure the state is in sync with the fetched data
+          );
         }
       } catch (error) {
-        console.log(error);
+        console.error("Error while fetching single job:", error);
       }
     };
     fetchSingleJobs();

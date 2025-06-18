@@ -16,6 +16,7 @@ const Profile = () => {
   useGetAppliedJobs();
   const [edit, setEdit] = useState(false);
   const { user } = useSelector((store) => store.auth);
+  const DEFAULT_PROFILE_PIC = "/icons/defaultProfilePic.png";
   return (
     <div>
       <Navbar />
@@ -23,7 +24,10 @@ const Profile = () => {
         <div className="flex justify-between">
           <div className="flex items-center gap-5">
             <Avatar className="size-24">
-              <AvatarImage src={user?.profile?.profilePhoto} alt="profile" />
+              <AvatarImage
+                src={user?.profile?.profilePhoto || DEFAULT_PROFILE_PIC}
+                alt="profile"
+              />
             </Avatar>
             <div>
               <h1 className="font-medium text-xl">{user?.fullName}</h1>

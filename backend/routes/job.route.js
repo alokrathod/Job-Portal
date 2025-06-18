@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.post("/post", protect, postJob);
 router.get("/get", getAllJobs); // public route, no protect middleware
-router.get("/get/:id", protect, getJobById);
+router.get("/get/:id", getJobById);
 router.get("/get-recruiter-jobs", protect, getRecruiterJobs);
 
 export default router;

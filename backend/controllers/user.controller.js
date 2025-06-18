@@ -161,14 +161,24 @@ export const checkUser = async (req, res) => {
 export const updateProfile = async (req, res) => {
   // const { fullName, email, phoneNumber, bio, skills } = req.body;
   const { bio, skills } = req.body;
-  const file = req.file;
+  const resumeFile = req.files?.file?.[0];
+  const profilePhotoFile = req.files?.profilePhoto?.[0];
   try {
-    let cloudResponse = false;
-    if (file) {
-      // Todo: cloudinary file uplaod
-      const fileUri = getDataUri(file);
-      cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+    let resumeCloud = null;
+    let photoCloud = null;
+
+    // Upload resume if provided
+    if (resumeFile) {
+      const fileUri = getDataUri(resumeFile);
+      resumeCloud = await cloudinary.uploader.upload(fileUri.content);
     }
+
+    // Upload profile photo if provided
+    if (profilePhotoFile) {
+      const photoUri = getDataUri(profilePhotoFile);
+      photoCloud = await cloudinary.uploader.upload(photoUri.content);
+    }
+
     const userId = req.id; // it comes from middleware authentication
 
     let user = await User.findById(userId);
@@ -189,10 +199,15 @@ export const updateProfile = async (req, res) => {
       user.profile.skills = skillsArray;
     }
 
-    // Todo: resume part comes here
-    if (cloudResponse) {
-      user.profile.resume = cloudResponse.secure_url; // save the cloudinary url
-      user.profile.resumeOriginalName = file.originalname; // save the original file name to display it
+    // Update resume
+    if (resumeCloud) {
+      user.profile.resume = resumeCloud.secure_url;
+      user.profile.resumeOriginalName = resumeFile.originalname;
+    }
+
+    // Update profile photo
+    if (photoCloud) {
+      user.profile.profilePhoto = photoCloud.secure_url;
     }
 
     await user.save();

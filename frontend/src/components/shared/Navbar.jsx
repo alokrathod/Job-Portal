@@ -14,6 +14,7 @@ const Navbar = () => {
   const { user } = useSelector((store) => store.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const DEFAULT_PROFILE_PIC = "/icons/defaultProfilePic.png";
   const logoutHandler = async () => {
     try {
       const res = await axios.get(`${USER_API_END_POINT}/logout`, {
@@ -80,7 +81,7 @@ const Navbar = () => {
               <PopoverTrigger asChild>
                 <Avatar className="cursor-pointer">
                   <AvatarImage
-                    src={user?.profile?.profilePhoto}
+                    src={user?.profile?.profilePhoto || DEFAULT_PROFILE_PIC}
                     alt="profile-photo"
                   />
                 </Avatar>
@@ -90,7 +91,7 @@ const Navbar = () => {
                   <div className="flex gap-2 space-y-2">
                     <Avatar className="cursor-pointer">
                       <AvatarImage
-                        src={user?.profile?.profilePhoto}
+                        src={user?.profile?.profilePhoto || DEFAULT_PROFILE_PIC}
                         alt="profile-photo"
                       />
                     </Avatar>

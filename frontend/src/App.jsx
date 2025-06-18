@@ -13,6 +13,8 @@ import CompanySetup from "./components/admin/CompanySetup";
 import AdminJobs from "./components/admin/AdminJobs";
 import PostJob from "./components/admin/PostJob";
 import Applicants from "./components/admin/Applicants";
+import RecruiterRoute from "./components/admin/RecruiterRoute";
+import PrivateRoute from "./components/PrivateRoute";
 
 const appRouter = createBrowserRouter([
   {
@@ -41,33 +43,61 @@ const appRouter = createBrowserRouter([
   },
   {
     path: "/profile",
-    element: <Profile />,
+    element: (
+      <PrivateRoute>
+        <Profile />
+      </PrivateRoute>
+    ),
   },
 
   // admin (recruiter) routes start
   {
     path: "/admin/companies",
-    element: <Companies />,
+    element: (
+      <RecruiterRoute>
+        <Companies />
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/companies/create",
-    element: <CompanyCreate />,
+    element: (
+      <RecruiterRoute>
+        <CompanyCreate />
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/companies/:id",
-    element: <CompanySetup />,
+    element: (
+      <RecruiterRoute>
+        <CompanySetup />
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/jobs",
-    element: <AdminJobs />,
+    element: (
+      <RecruiterRoute>
+        <AdminJobs />
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/jobs/create",
-    element: <PostJob />,
+    element: (
+      <RecruiterRoute>
+        <PostJob />
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/jobs/:id/applicants",
-    element: <Applicants />,
+    element: (
+      <RecruiterRoute>
+        <Applicants />
+      </RecruiterRoute>
+    ),
   },
 ]);
 
