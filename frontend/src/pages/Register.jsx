@@ -71,10 +71,6 @@ const Register = () => {
     }
   };
 
-  useEffect(() => {
-    navigate("/");
-  }, []);
-
   return (
     <div>
       <Navbar />
