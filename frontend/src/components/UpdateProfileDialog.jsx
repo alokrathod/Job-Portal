@@ -124,7 +124,7 @@ const UpdateProfileDialog = ({ edit, setEdit }) => {
                   id="file"
                   name="file"
                   type="file"
-                  accept="application/pdf"
+                  accept="image/*"
                   onChange={changeFileHandler}
                 />
               </div>

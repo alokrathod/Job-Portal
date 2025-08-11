@@ -169,10 +169,8 @@ export const updateProfile = async (req, res) => {
 
     // Upload resume if provided
     if (resumeFile) {
-      // Upload as raw file to Cloudinary
-      resumeCloud = await cloudinary.uploader.upload(resumeFile.path, {
-        resource_type: "raw",
-      });
+      const fileUri = getDataUri(resumeFile);
+      resumeCloud = await cloudinary.uploader.upload(fileUri.content);
     }
 
     // Upload profile photo if provided
