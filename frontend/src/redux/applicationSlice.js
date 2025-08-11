@@ -3,11 +3,11 @@ import { createSlice } from "@reduxjs/toolkit";
 const applicationSlice = createSlice({
   name: "application",
   initialState: {
-    applicants: [],
+    applicantions: [],
   },
   reducers: {
     setAllApplicants: (state, action) => {
-      state.applicants = action.payload;
+      state.applicantions = action.payload;
     },
   },
 });
